@@ -47,6 +47,11 @@
 AppId={{B7E6B2D4-3F8A-4C21-9E5D-2A1F6C9B4E70}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
+; Controls the wizard caption AND the "Add or Remove Programs" display name.
+; Without this, Inno shows "<AppName> version <AppVersion>"; set it explicitly
+; for a clean "Miniscope DAQ 1.2" that matches the version shown in the app's
+; Help (sourced from source/main.cpp VERSION_NUMBER - see the CI step).
+AppVerName={#MyAppName} {#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
@@ -61,6 +66,13 @@ OutputDir={#MyOutputDir}
 OutputBaseFilename={#MyOutputBaseName}
 SetupIconFile=..\source\miniscope_icon.ico
 UninstallDisplayIcon={app}\{#MyAppExeName}
+; Tuck the uninstaller (unins000.exe + unins000.dat) into bin/ rather than the
+; top level. Inno hardcodes those file names and the .dat is required by the
+; uninstaller, so they can't be renamed or removed - but bin/ is where this
+; project already hides its DLL/plugin clutter, leaving the top level clean
+; (launcher + configs + bin/). Users uninstall via the Start Menu shortcut or
+; Add/Remove Programs, both labelled "Uninstall", never "unins000".
+UninstallFilesDir={app}\bin
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern

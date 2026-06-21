@@ -88,13 +88,21 @@ jobs:
 
       - name: Build installer (Inno Setup)
         run: |
-          # Version string for the installer: "v1.10" tag -> "1.10"; manual runs
-          # get a dev tag off the short SHA so the file name is never empty.
+          # The version shown in the app's Help and in "Add or Remove Programs"
+          # comes straight from the app itself (source/main.cpp:
+          # #define VERSION_NUMBER "x.y"), so the installer label always matches
+          # what the running app reports - regardless of tag vs manual trigger.
+          $m = Select-String -Path source/main.cpp -Pattern '#define\s+VERSION_NUMBER\s+"([^"]+)"'
+          if (-not $m) { throw "VERSION_NUMBER not found in source/main.cpp" }
+          $ver = $m.Matches[0].Groups[1].Value
+          "App version (from main.cpp): $ver"
+
+          # The release-artifact FILE name still tracks the git tag (or a generic
+          # name for manual runs) so each tagged release stays identifiable; only
+          # the in-installer version label is sourced from the app above.
           if ($env:GITHUB_REF_TYPE -eq 'tag') {
-            $ver  = $env:GITHUB_REF_NAME -replace '^v',''
             $base = "MiniscopeDAQ-$env:GITHUB_REF_NAME-Setup"
           } else {
-            $ver  = "dev-$($env:GITHUB_SHA.Substring(0,7))"
             $base = "MiniscopeDAQ-Setup"
           }
 
