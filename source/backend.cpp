@@ -761,12 +761,27 @@ void backEnd::addDevice(const QString &category, const QString &deviceType,
     checkUserConfigForIssues();
 }
 
+// Public entry (wired to the "Scan Devices" button): dispatch to the OS-specific
+// scan at compile time. Each backend builds its own report because the device
+// model differs (DirectShow index on Windows vs V4L2 capture/metadata nodes).
+QString backEnd::scanVideoDevices()
+{
+#if defined(Q_OS_WINDOWS)
+    return scanVideoDevicesWindows();
+#elif defined(Q_OS_LINUX)
+    return scanVideoDevicesLinux();
+#else
+    return QStringLiteral("Device scan is not available on this platform.");
+#endif
+}
+
+#if defined(Q_OS_WINDOWS)
+// Names of the connected DirectShow video-input devices, indexed the same way
+// OpenCV's CAP_DSHOW backend orders them, so the position == the config deviceID.
+// Reused by scanVideoDevicesWindows() and availableDeviceIDs().
 QStringList backEnd::enumerateVideoDevices()
 {
     QStringList names;
-#ifdef Q_OS_WINDOWS
-    // Enumerate DirectShow video input devices. Their order matches the index
-    // OpenCV's CAP_DSHOW backend uses, so the position == the config deviceID.
     const HRESULT hrInit = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
     const bool balanceUninit = SUCCEEDED(hrInit); // S_OK or S_FALSE (already init)
 
@@ -798,13 +813,28 @@ QStringList backEnd::enumerateVideoDevices()
     }
     if (balanceUninit)
         CoUninitialize();
-#endif
     return names;
 }
 
-QString backEnd::scanVideoDevices()
+QString backEnd::scanVideoDevicesWindows()
 {
-#if defined(Q_OS_LINUX)
+    const QStringList names = enumerateVideoDevices();
+    if (names.isEmpty())
+        return QStringLiteral("No video devices detected.");
+    QStringList lines;
+    for (int i = 0; i < names.size(); i++)
+        lines << QString("    deviceID %1:  %2")
+                     .arg(i)
+                     .arg(names[i].isEmpty() ? QStringLiteral("(unknown)") : names[i]);
+    return QStringLiteral("Detected video devices:\n") + lines.join("\n")
+           + QStringLiteral("\n\nUse these deviceID numbers in your user config. "
+                            "Note: a Miniscope might appear under a generic name "
+                            "(e.g. \"USB Video Device\").");
+}
+
+#elif defined(Q_OS_LINUX)
+QString backEnd::scanVideoDevicesLinux()
+{
     // Enumerate /dev/videoN via V4L2. Each physical UVC camera usually exposes
     // two nodes (a capture node and a metadata node), so we query each node's
     // capabilities and mark which one to use as the deviceID.
@@ -858,23 +888,8 @@ QString backEnd::scanVideoDevices()
            + QStringLiteral("\n\nUse the [capture] deviceID for each device in your user "
                             "config. A single camera often lists two nodes; only the "
                             "[capture] one streams video.");
-#elif defined(Q_OS_WINDOWS)
-    const QStringList names = enumerateVideoDevices();
-    if (names.isEmpty())
-        return QStringLiteral("No video devices detected.");
-    QStringList lines;
-    for (int i = 0; i < names.size(); i++)
-        lines << QString("    deviceID %1:  %2")
-                     .arg(i)
-                     .arg(names[i].isEmpty() ? QStringLiteral("(unknown)") : names[i]);
-    return QStringLiteral("Detected video devices:\n") + lines.join("\n")
-           + QStringLiteral("\n\nUse these deviceID numbers in your user config. "
-                            "Note: a Miniscope might appear under a generic name "
-                            "(e.g. \"USB Video Device\").");
-#else
-    return QStringLiteral("Device scan is not available on this platform.");
-#endif
 }
+#endif
 
 QStringList backEnd::availableDeviceIDs()
 {
@@ -894,7 +909,10 @@ QStringList backEnd::availableDeviceIDs()
 
     // One entry per connected device (fall back to 0..15 if none detected), and
     // always at least one ID past the highest used so the list is never empty.
-    const QStringList names = enumerateVideoDevices();
+    QStringList names;
+#ifdef Q_OS_WINDOWS
+    names = enumerateVideoDevices();   // label each ID with the connected device name
+#endif
     int maxIDs = names.isEmpty() ? 16 : names.size();
     int highestUsed = -1;
     for (int u : used)

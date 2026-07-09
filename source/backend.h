@@ -95,7 +95,8 @@ public:
     // Save the (edited) user config to a user-chosen path from the Save-As dialog.
     Q_INVOKABLE void saveConfigObjectAs(const QString &filePath);
     // Enumerate connected video devices as "deviceID N: <name>" lines so the user
-    // can see which deviceID maps to which camera. Windows (DirectShow) only.
+    // can see which deviceID maps to which camera. Dispatches at compile time to a
+    // per-OS implementation (DirectShow on Windows, V4L2 on Linux).
     Q_INVOKABLE QString scanVideoDevices();
 
     // --- User-config generator -----------------------------------------------
@@ -166,9 +167,14 @@ private:
     QJsonValue defaultForType(const QString &type);
     void enrichDeviceDefaults(QJsonObject &device, const QString &category, const QString &deviceType);
 
-    // Connected video-device names indexed by deviceID (DirectShow order, which
-    // matches OpenCV's CAP_DSHOW index). Empty off-Windows or when none are found.
+    // Per-OS implementations behind scanVideoDevices(); each is defined only on its
+    // platform (calls to the other are #ifdef'd out, so it's never odr-used there).
+    // enumerateVideoDevices() lists the connected DirectShow device names indexed by
+    // deviceID (order == OpenCV's CAP_DSHOW index) and is also used by
+    // availableDeviceIDs(); it exists on Windows only.
     QStringList enumerateVideoDevices();
+    QString scanVideoDevicesWindows();
+    QString scanVideoDevicesLinux();
 
     QString m_versionNumber;
     QString m_buildInfo;
