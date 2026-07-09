@@ -117,6 +117,10 @@ public:
 
 
     void loadUserConfigFile();
+    // Recompute m_hasDevices and emit hasDevicesChanged() if it changed; call after
+    // the config is mutated/loaded. Kept out of checkUserConfigForIssues() so that
+    // stays purely a validity check.
+    void updateHasDevices();
     bool checkUserConfigForIssues();
     void constructUserConfigGUI();
     void parseUserConfig();

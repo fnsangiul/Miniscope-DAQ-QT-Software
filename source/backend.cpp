@@ -662,6 +662,7 @@ void backEnd::newUserConfig()
     m_userConfigFileName.clear();   // brand-new config: unseed the Save-As dialog
 
     constructJsonTreeModel();
+    updateHasDevices();
     checkUserConfigForIssues();     // emits userConfigOKChanged() -> enables Save/Run
 }
 
@@ -758,6 +759,7 @@ void backEnd::addDevice(const QString &category, const QString &deviceType,
     m_userConfig["devices"] = devices;
 
     constructJsonTreeModel();
+    updateHasDevices();
     checkUserConfigForIssues();
 }
 
@@ -1002,6 +1004,7 @@ void backEnd::onRunClicked()
 //    qDebug() << "Run was clicked!";
     generateUserConfigFromModel();
     parseUserConfig();
+    updateHasDevices();
     checkUserConfigForIssues();
     if (m_userConfigOK) {
 
@@ -1034,6 +1037,7 @@ void backEnd::handleUserConfigFileNameChanged()
     loadUserConfigFile();
     constructJsonTreeModel();
     parseUserConfig();
+    updateHasDevices();
     checkUserConfigForIssues();
 }
 
@@ -1154,9 +1158,10 @@ void backEnd::testCodecSupport()
     QFile::remove(probePath);   // remove the throwaway probe file
 }
 
-bool backEnd::checkUserConfigForIssues()
+// Recompute whether the config has any devices (the Run button is gated on this)
+// and notify QML if it changed. Call after the config is mutated or (re)loaded.
+void backEnd::updateHasDevices()
 {
-    // Track whether the config has any devices (the Run button is gated on this).
     const QJsonObject devs = m_userConfig.value("devices").toObject();
     const bool has = (devs.value("miniscopes").toObject().size()
                       + devs.value("cameras").toObject().size()) > 0;
@@ -1164,7 +1169,10 @@ bool backEnd::checkUserConfigForIssues()
         m_hasDevices = has;
         emit hasDevicesChanged();
     }
+}
 
+bool backEnd::checkUserConfigForIssues()
+{
     if (checkForUniqueDeviceNames() == false) {
         // Need to tell user that user config has error(s)
         setUserConfigOK(false);
