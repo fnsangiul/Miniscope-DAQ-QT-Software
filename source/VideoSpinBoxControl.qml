@@ -1,8 +1,6 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.12
-// Qt6: removed unused 'import QtQuick.Controls.Styles 1.4' (module removed in Qt6;
-// nothing in this file used a Controls-1 *Style type).
 
 Item {
     id:root
