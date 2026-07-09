@@ -10,11 +10,11 @@
 # activate miniscope-qt6 && conda install -c conda-forge libuvc`. Network access
 # to fetch linuxdeploy on first run.
 #
-# Usage:   conda activate miniscope-qt6 && packaging/build-appimage.sh
+# Usage:   conda activate miniscope-qt6 && packaging/linux/build-appimage.sh
 # Output:  dist/Miniscope_DAQ[-<version>]-x86_64.AppImage
 set -euo pipefail
 
-REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 BUILD="$REPO/build-appimage"
 APPDIR="$BUILD/AppDir"
 TOOLS="$BUILD/tools"
@@ -44,7 +44,7 @@ mkdir -p "$APPDIR/usr/bin" "$APPDIR/usr/share/miniscope" \
          "$APPDIR/usr/share/icons/hicolor/256x256/apps"
 cp "$BUILD/MiniscopeDAQ" "$APPDIR/usr/bin/MiniscopeDAQ"        # real ELF (for ldd)
 for d in deviceConfigs userConfigs Scripts; do cp -r "$REPO/$d" "$APPDIR/usr/share/miniscope/$d"; done
-cp "$REPO/packaging/miniscope-daq.desktop" "$APPDIR/usr/share/applications/miniscope-daq.desktop"
+cp "$REPO/packaging/linux/miniscope-daq.desktop" "$APPDIR/usr/share/applications/miniscope-daq.desktop"
 # Square 256x256 icon from the logo (linuxdeploy requires a standard square size).
 ffmpeg -y -loglevel error -i "$REPO/source/img/MiniscopeLogo.png" \
   -vf "scale=256:256:force_original_aspect_ratio=decrease,pad=256:256:(ow-iw)/2:(oh-ih)/2:color=#00000000,format=rgba" \
@@ -76,7 +76,7 @@ cp -L "$CONDA_LIB/libusb-1.0.so.0" "$APPDIR/usr/lib/" 2>/dev/null || true
 
 echo "### install first-run launcher wrapper"
 mv "$APPDIR/usr/bin/MiniscopeDAQ" "$APPDIR/usr/bin/MiniscopeDAQ.bin"
-cp "$REPO/packaging/AppRun.wrapper" "$APPDIR/usr/bin/MiniscopeDAQ"
+cp "$REPO/packaging/linux/AppRun.wrapper" "$APPDIR/usr/bin/MiniscopeDAQ"
 chmod +x "$APPDIR/usr/bin/MiniscopeDAQ"
 
 echo "### package AppImage"

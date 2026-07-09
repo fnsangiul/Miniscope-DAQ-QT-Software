@@ -7,7 +7,7 @@
 # headless / non-desktop sessions or if you hit LIBUSB_ERROR_ACCESS.
 #
 # Install:
-#   sudo cp packaging/99-miniscope.rules /etc/udev/rules.d/
+#   sudo cp packaging/linux/99-miniscope.rules /etc/udev/rules.d/
 #   sudo udevadm control --reload-rules && sudo udevadm trigger
 # then re-plug the Miniscope.
 SUBSYSTEM=="usb", ATTRS{idVendor}=="04b4", ATTRS{idProduct}=="00f9", MODE="0660", TAG+="uaccess"

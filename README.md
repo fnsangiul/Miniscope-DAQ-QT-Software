@@ -52,7 +52,7 @@ chmod +x Miniscope_DAQ-*-x86_64.AppImage
 **USB permissions.** On a normal desktop login the Miniscope is accessible out of the box. For headless/remote sessions (or if you hit a USB access error), install the bundled udev rule once:
 
 ```bash
-sudo cp packaging/99-miniscope.rules /etc/udev/rules.d/
+sudo cp packaging/linux/99-miniscope.rules /etc/udev/rules.d/
 sudo udevadm control --reload-rules && sudo udevadm trigger   # then re-plug the Miniscope
 ```
 

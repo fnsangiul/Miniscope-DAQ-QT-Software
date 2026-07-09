@@ -66,7 +66,7 @@ Thumbs.db
 # Python byte code
 *.pyc
 
-# Builds (match build dirs only, not e.g. packaging/build-appimage.sh)
+# Builds (match build dirs only, not e.g. packaging/linux/build-appimage.sh)
 /build-*/
 
 # CMake build directory + artifacts

@@ -13,12 +13,12 @@
 ; user-writable and needs no elevation.
 ;
 ; Build locally (after `cmake --build build --config Release --target deploy`):
-;   iscc installer\MiniscopeDAQ.iss
+;   iscc packaging\windows\MiniscopeDAQ.iss
 ;
 ; CI overrides version / source / output name from the command line, e.g.:
 ;   iscc /DMyAppVersion=1.10 /DMySourceDir=C:\...\build\Release ^
 ;        /DMyOutputDir=C:\...\artifacts /DMyOutputBaseName=MiniscopeDAQ-v1.10-Setup ^
-;        installer\MiniscopeDAQ.iss
+;        packaging\windows\MiniscopeDAQ.iss
 ; ---------------------------------------------------------------------------
 
 #define MyAppName "Miniscope DAQ"
@@ -31,10 +31,10 @@
   #define MyAppVersion "dev"
 #endif
 #ifndef MySourceDir
-  #define MySourceDir "..\build\Release"
+  #define MySourceDir "..\..\build\Release"
 #endif
 #ifndef MyOutputDir
-  #define MyOutputDir "..\build\installer"
+  #define MyOutputDir "..\..\build\installer"
 #endif
 #ifndef MyOutputBaseName
   #define MyOutputBaseName "MiniscopeDAQ-" + MyAppVersion + "-Setup"
