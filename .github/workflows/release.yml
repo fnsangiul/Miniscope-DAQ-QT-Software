@@ -38,15 +38,15 @@ jobs:
         shell: pwsh
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up conda env (Miniforge + environment.yml)
-        uses: conda-incubator/setup-miniconda@v3
+        uses: conda-incubator/setup-miniconda@v4
         with:
           miniforge-version: latest
           environment-file: environment.yml
           activate-environment: miniscope-qt6
-          auto-activate-base: false
+          auto-activate: false
 
       - name: Set up MSVC toolchain (x64)
         uses: ilammy/msvc-dev-cmd@v1
@@ -111,7 +111,7 @@ jobs:
           "Built $base.exe"
 
       - name: Upload Windows artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: MiniscopeDAQ-Windows-x64
           path: |
@@ -130,7 +130,7 @@ jobs:
         shell: bash -el {0}    # login shell so `conda activate` works
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       # OpenGL/EGL dev libs for linking Qt6::OpenGL on the runner (conda provides
       # Qt/OpenCV/ninja; the GL loader libs come from the system).
@@ -140,12 +140,12 @@ jobs:
           sudo apt-get install -y libgl1-mesa-dev libegl1-mesa-dev libglu1-mesa-dev
 
       - name: Set up conda env (Miniforge + environment.yml)
-        uses: conda-incubator/setup-miniconda@v3
+        uses: conda-incubator/setup-miniconda@v4
         with:
           miniforge-version: latest
           environment-file: environment.yml
           activate-environment: miniscope-qt6
-          auto-activate-base: false
+          auto-activate: false
 
       - name: Add libuvc (Linux Miniscope capture backend)
         run: conda install -n miniscope-qt6 -c conda-forge -y libuvc
@@ -160,7 +160,7 @@ jobs:
           echo "Built $f"
 
       - name: Upload Linux artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: MiniscopeDAQ-Linux-x86_64
           path: ${{ env.APPIMAGE_PATH }}
@@ -175,12 +175,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download all build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: artifacts       # each artifact lands in artifacts/<name>/
 
       - name: Publish Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: artifacts/**/*
           generate_release_notes: true
