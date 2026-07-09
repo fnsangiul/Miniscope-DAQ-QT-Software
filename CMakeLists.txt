@@ -148,8 +148,10 @@ target_link_libraries(MiniscopeDAQ PRIVATE
 # cannot read the Miniscope's live frame-counter / BNO head-orientation
 # registers (which the firmware streams back through UVC GET_CUR). libuvc talks
 # to the device directly over libusb and issues a fresh GET_CUR each read,
-# bypassing that cache. Enabled only when found; used only for Miniscopes on
-# Linux (see VideoStreamLibUVC). Everything else stays on OpenCV.
+# bypassing that cache. Required on Linux by default; pass -DREQUIRE_LIBUVC=OFF
+# to fall back to the OpenCV backend instead. Used only for Miniscopes on Linux
+# (see VideoStreamLibUVC); everything else stays on OpenCV.
+option(REQUIRE_LIBUVC "Fail configure on Linux if libuvc is missing (vs. OpenCV fallback)" ON)
 if(UNIX AND NOT APPLE)
     find_path(LIBUVC_INCLUDE_DIR libuvc/libuvc.h)
     find_library(LIBUVC_LIBRARY NAMES uvc)
@@ -162,9 +164,16 @@ if(UNIX AND NOT APPLE)
             target_link_libraries(MiniscopeDAQ PRIVATE ${LIBUSB1_LIBRARY})
         endif()
         target_compile_definitions(MiniscopeDAQ PRIVATE HAVE_LIBUVC)
+    elseif(REQUIRE_LIBUVC)
+        message(FATAL_ERROR
+            "libuvc not found. It is required for the Miniscope capture backend on Linux "
+            "(the kernel uvcvideo driver can't return the live BNO / frame counter). "
+            "Install it with `conda install -c conda-forge libuvc` or your distro's "
+            "libuvc-dev, or pass -DREQUIRE_LIBUVC=OFF to build with the OpenCV fallback "
+            "(no live BNO / frame counter).")
     else()
         message(WARNING "libuvc not found; Miniscopes on Linux will fall back to the "
-                        "OpenCV backend (no live BNO / frame counter). Install libuvc to enable.")
+                        "OpenCV backend (no live BNO / frame counter).")
     endif()
 endif()
 

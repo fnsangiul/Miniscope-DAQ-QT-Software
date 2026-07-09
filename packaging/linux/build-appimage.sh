@@ -6,7 +6,7 @@
 # the bundle stays lean, then packages it with linuxdeploy + its Qt plugin.
 #
 # Requirements: an ACTIVE conda env that satisfies the build (Qt6, OpenCV, libuvc,
-# cmake, ninja, ffmpeg) — i.e. `conda env create -f environment.yml && conda
+# cmake, ninja) — i.e. `conda env create -f environment.yml && conda
 # activate miniscope-qt6 && conda install -c conda-forge libuvc`. Network access
 # to fetch linuxdeploy on first run.
 #
@@ -45,10 +45,8 @@ mkdir -p "$APPDIR/usr/bin" "$APPDIR/usr/share/miniscope" \
 cp "$BUILD/MiniscopeDAQ" "$APPDIR/usr/bin/MiniscopeDAQ"        # real ELF (for ldd)
 for d in deviceConfigs userConfigs Scripts; do cp -r "$REPO/$d" "$APPDIR/usr/share/miniscope/$d"; done
 cp "$REPO/packaging/linux/miniscope-daq.desktop" "$APPDIR/usr/share/applications/miniscope-daq.desktop"
-# Square 256x256 icon from the logo (linuxdeploy requires a standard square size).
-ffmpeg -y -loglevel error -i "$REPO/source/img/MiniscopeLogo.png" \
-  -vf "scale=256:256:force_original_aspect_ratio=decrease,pad=256:256:(ow-iw)/2:(oh-ih)/2:color=#00000000,format=rgba" \
-  "$APPDIR/usr/share/icons/hicolor/256x256/apps/miniscope-daq.png"
+# Square 256x256 app icon, checked in (linuxdeploy requires a standard square size).
+cp "$REPO/packaging/linux/miniscope-daq.png" "$APPDIR/usr/share/icons/hicolor/256x256/apps/miniscope-daq.png"
 
 echo "### bundle Qt + libs (linuxdeploy + qt plugin)"
 export QMAKE="$CONDA_PREFIX/bin/qmake6"
