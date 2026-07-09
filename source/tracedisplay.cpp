@@ -118,40 +118,9 @@ TraceDisplay::TraceDisplay()
 
 void TraceDisplay::mousePressEvent(QMouseEvent *event)
 {
-    // Qt6: cloning QMouseEvent is no longer the pattern. The drag logic in
-    // mouseMoveEvent() that consumed the stored event is disabled, so nothing
-    // is kept here.
-    Q_UNUSED(event)
-//    qDebug() << "Mouse Press" << event;
-}
-
-void TraceDisplay::mouseMoveEvent(QMouseEvent *event)
-{
-    // Drag event:
-//    float deltaX, deltaY;
-//    if (event->buttons() == Qt::LeftButton) {
-//        if (lastMouseMoveEvent) {
-//            deltaX = lastMouseMoveEvent->x() - event->x();
-//            deltaY = lastMouseMoveEvent->y() - event->y();
-//        }
-//        else {
-//            deltaX = lastMouseClickEvent->x() - event->x();
-//            deltaY = lastMouseClickEvent->y() - event->y();
-//        }
-//        lastMouseMoveEvent = new QMouseEvent(*event);
-
-//        m_renderer->updatePan(deltaX, deltaY);
-
-
-//    }
-//    qDebug() << "Mouse Move" << event;
-}
-
-void TraceDisplay::mouseReleaseEvent(QMouseEvent *event)
-{
-    // Qt6: see mousePressEvent() - no stored event needed while drag is disabled.
-    Q_UNUSED(event)
-//    qDebug() << "Mouse Release" << event;
+    // Accept the press so we keep the mouse grab - otherwise the double-click
+    // (trace select) in mouseDoubleClickEvent() never gets delivered.
+    event->accept();
 }
 
 void TraceDisplay::wheelEvent(QWheelEvent *event)

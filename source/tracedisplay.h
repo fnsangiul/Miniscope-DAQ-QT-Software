@@ -180,8 +180,6 @@ public:
     TraceDisplay();
 
     void mousePressEvent(QMouseEvent *event) override;
-    void mouseMoveEvent(QMouseEvent *event) override;
-    void mouseReleaseEvent(QMouseEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
     void hoverMoveEvent(QHoverEvent *event) override;
     void mouseDoubleClickEvent(QMouseEvent *event) override;
@@ -223,10 +221,6 @@ private:
     TraceDisplayRenderer *m_renderer;
 
     QVector<trace_t> m_tempTraces;
-
-
-    // Qt6: removed cloned-QMouseEvent members; the drag logic that used them is
-    // disabled (commented out) in tracedisplay.cpp.
 
     qint64 m_softwareStartTime;
 
