@@ -64,7 +64,7 @@ ArchitecturesAllowed=x64
 ArchitecturesInstallIn64BitMode=x64
 OutputDir={#MyOutputDir}
 OutputBaseFilename={#MyOutputBaseName}
-SetupIconFile=..\source\miniscope_icon.ico
+SetupIconFile=..\..\source\miniscope_icon.ico
 UninstallDisplayIcon={app}\{#MyAppExeName}
 ; Tuck the uninstaller (unins000.exe + unins000.dat) into bin/ rather than the
 ; top level. Inno hardcodes those file names and the .dat is required by the
