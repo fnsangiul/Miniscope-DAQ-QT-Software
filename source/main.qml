@@ -13,6 +13,11 @@ Window {
     color: "#afafaf"
     title: qsTr("Miniscope DAQ")
 
+    // Closing the main window shuts down the whole app - including the video and
+    // trace windows, which are separate top-level windows that otherwise keep the
+    // process alive. exitClicked() emits closeAll(), which quits the engine.
+    onClosing: backend.exitClicked()
+
 
 
     FileDialog {
