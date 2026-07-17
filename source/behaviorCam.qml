@@ -260,7 +260,10 @@ Item {
                     repeat: true
                     running: true
                     onTriggered: {
-                        droppedFrameCount.text = "Dropped Frames: " + videoDisplay.droppedFrameCount;
+                        // A negative count is not a real drop tally: plain USB webcams
+                        // have no hardware frame counter to compare against, so show N/A.
+                        droppedFrameCount.text = "Dropped Frames: "
+                                + (videoDisplay.droppedFrameCount < 0 ? "N/A" : videoDisplay.droppedFrameCount);
                       }
                 }
             }

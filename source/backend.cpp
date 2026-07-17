@@ -729,6 +729,25 @@ void backEnd::enrichDeviceDefaults(QJsonObject &device, const QString &category,
     }
 }
 
+QStringList backEnd::deviceTypesForCategory(const QString &category) const
+{
+    // Split the catalog by each entry's qmlFile: camera-class devices (WebCam
+    // variants, Minicam) share behaviorCam.qml, miniscopes use a Miniscope_*.qml.
+    // Anything not identified as a camera is treated as a miniscope. Keys come back
+    // sorted (QJsonObject orders them), matching the dropdown's previous ordering.
+    const bool wantCamera = (category == "cameras");
+    QStringList types;
+    const QStringList keys = m_deviceCatalog.keys();
+    for (const QString &k : keys) {
+        const QString qml = m_deviceCatalog.value(k).toObject()
+                                .value("qmlFile").toString();
+        const bool isCamera = qml.contains("behaviorCam", Qt::CaseInsensitive);
+        if (isCamera == wantCamera)
+            types << k;
+    }
+    return types;
+}
+
 void backEnd::addDevice(const QString &category, const QString &deviceType,
                         const QString &deviceName, int deviceID)
 {
@@ -1359,10 +1378,16 @@ void backEnd::constructUserConfigGUI()
     controlPanel = new ControlPanel(this, m_userConfig);
     QObject::connect(this, SIGNAL (sendMessage(QString) ), controlPanel, SLOT( receiveMessage(QString)));
 
-    // Make trace display
-    if (!ucTraceDisplay.isEmpty()) {
-        if (ucTraceDisplay["enabled"].toBool(true))
-            traceDisplay = new TraceDisplayBackend(NULL, ucTraceDisplay, m_softwareStartTime);
+    // Make trace display. Traces are only ever fed by miniscopes (BNO / head
+    // orientation) or the behavior tracker, so don't open an empty trace window
+    // for a config with no such source (e.g. webcam-only), even if it is enabled.
+    const bool behaviorTrackerWillRun = !ucBehaviorTracker.isEmpty()
+            && ucBehaviorTracker["enabled"].toBool(true)
+            && !ucBehaviorCams.isEmpty();
+    const bool traceDisplayHasSource = !ucMiniscopes.isEmpty() || behaviorTrackerWillRun;
+    if (!ucTraceDisplay.isEmpty() && ucTraceDisplay["enabled"].toBool(true)
+            && traceDisplayHasSource) {
+        traceDisplay = new TraceDisplayBackend(NULL, ucTraceDisplay, m_softwareStartTime);
     }
 
     // Make Minsicope displays

@@ -88,7 +88,9 @@ Item {
                     repeat: true
                     running: true
                     onTriggered: {
-                        droppedFrameCount.text = "Dropped Frames: " + videoDisplay.droppedFrameCount;
+                        // A negative count is never a real drop tally; show N/A instead.
+                        droppedFrameCount.text = "Dropped Frames: "
+                                + (videoDisplay.droppedFrameCount < 0 ? "N/A" : videoDisplay.droppedFrameCount);
                       }
                 }
 

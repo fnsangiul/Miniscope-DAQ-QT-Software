@@ -58,9 +58,11 @@ Dialog {
             Layout.fillWidth: true
             font.pointSize: 12
             model: [ "Miniscope", "Camera" ]
-            // Refresh the suggested name to match the category unless the user
-            // already typed their own.
+            // Changing the category re-filters the device-type dropdown (via its
+            // model binding), so reset it to the new category's first type. Also
+            // refresh the suggested name unless the user already typed their own.
             onActivated: {
+                typeCombo.currentIndex = 0;
                 if (nameField.text === "My Miniscope" || nameField.text === "My Camera"
                         || nameField.text.trim() === "")
                     nameField.text = currentText === "Miniscope" ? "My Miniscope" : "My Camera";
@@ -72,9 +74,11 @@ Dialog {
             id: typeCombo
             Layout.fillWidth: true
             font.pointSize: 12
-            // All supported types from deviceConfigs/videoDevices.json; the user
-            // picks the category explicitly above.
-            model: backend.deviceTypes()
+            // Only the types valid for the category chosen above, filtered by the
+            // backend from deviceConfigs/videoDevices.json. Re-evaluates whenever
+            // the category changes.
+            model: backend.deviceTypesForCategory(
+                       catCombo.currentText === "Miniscope" ? "miniscopes" : "cameras")
         }
 
         Label { text: "Device ID"; font.pointSize: 12 }

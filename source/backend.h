@@ -100,9 +100,12 @@ public:
     Q_INVOKABLE QString scanVideoDevices();
 
     // --- User-config generator -----------------------------------------------
-    // Device types available to add (keys of deviceConfigs/videoDevices.json), for
-    // the Add-Device dialog's dropdown.
-    Q_INVOKABLE QStringList deviceTypes() const { return m_deviceCatalog.keys(); }
+    // Device types available to add for the given category ("miniscopes" or
+    // "cameras"), for the Add-Device dialog's type dropdown. Categorization is
+    // data-driven from each catalog entry's qmlFile: camera-class devices (WebCam
+    // variants, Minicam) share behaviorCam.qml, while miniscopes use a
+    // Miniscope_*.qml; anything not identified as a camera counts as a miniscope.
+    Q_INVOKABLE QStringList deviceTypesForCategory(const QString &category) const;
     // Device IDs not already used by another device in the config, each labelled with
     // the connected-device name when known. Drives the Add-Device dialog's ID
     // dropdown so two devices can't be assigned the same deviceID.
